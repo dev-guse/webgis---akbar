@@ -1,9 +1,9 @@
+import React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Polygon, Popup, useMap, LayersControl, LayerGroup, Tooltip } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { MapContainer, TileLayer, Polygon, Popup, useMap, LayersControl, LayerGroup, Tooltip, Marker } from 'react-leaflet';
 import L from 'leaflet';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import { Head, Link, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,19 +11,20 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, MapPin, Edit, Trash2, Eye } from 'lucide-react';
+import { createFacilityIcon, getFacilityIconSVG } from '@/lib/map-icons';
 
 import MapLegend from '@/components/maps/MapLegend';
 import MarkerPopupContent from '@/components/maps/MarkerPopupContent';
 
-const LAND_USE_COLORS: { [key: string]: string } = {
-    'Pertanian': '#84cc16',      // Lime
-    'Pemukiman': '#f59e0b',      // Amber
-    'Perkebunan': '#22c55e',     // Green
-    'Hutan': '#15803d',          // Dark Green
-    'Industri': '#64748b',       // Slate
-    'Fasilitas Umum': '#3b82f6', // Blue
-    'Lainnya': '#9ca3af',        // Gray
-};
+import { LAND_USE_COLORS, landUseTypes } from '@/lib/map-constants';
+
+const landUseLegendItems = landUseTypes.map(type => ({
+    label: type,
+    type: 'point' as const,
+    iconHtml: createFacilityIcon(type).options.html,
+    color: LAND_USE_COLORS[type] || '#000000', // Default to black if color not found
+}));
+
 
 interface BatasWilayah {
     id: number;
@@ -49,10 +50,6 @@ const formatLuas = (luas?: number): string => {
     }
     return `${Math.round(luas).toLocaleString('id-ID')} m²`;
 };
-
-
-
-
 
 // Component to control map zoom to specific polygon
 function MapController({ targetBounds }: { targetBounds: L.LatLngBounds | null }) {
@@ -94,7 +91,8 @@ export default function BatasWilayahIndex({ batasWilayah }: { batasWilayah: Bata
         setTargetBounds(bounds);
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     return (
         <AppLayout>
@@ -103,7 +101,7 @@ export default function BatasWilayahIndex({ batasWilayah }: { batasWilayah: Bata
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Batas Wilayah</h1>
-                        <p className="text-muted-foreground">Kelola batas wilayah lahan di Desa Somagede</p>
+                        <p className="text-muted-foreground">Kelola batas wilayah lahan di Desa Tegalsambi</p>
                     </div>
                     <Link href="/batas-wilayah/create">
                         <Button>
@@ -125,7 +123,7 @@ export default function BatasWilayahIndex({ batasWilayah }: { batasWilayah: Bata
                         </CardHeader>
                         <div className="flex-1 relative z-0">
                             <MapContainer
-                                center={DESA_SOMAGEDE_CENTER}
+                                center={DESA_TEGALSAMBI_CENTER}
                                 zoom={14}
                                 scrollWheelZoom={true}
                                 style={{ height: '100%', width: '100%' }}
@@ -135,11 +133,7 @@ export default function BatasWilayahIndex({ batasWilayah }: { batasWilayah: Bata
                             >
                                 <MapLegend
                                     title="Legenda Batas Wilayah"
-                                    items={Object.entries(LAND_USE_COLORS).map(([label, color]) => ({
-                                        label,
-                                        color,
-                                        type: 'point'
-                                    }))}
+                                    items={landUseLegendItems}
                                 />
 
                                 <MapController targetBounds={targetBounds} />
@@ -165,10 +159,10 @@ export default function BatasWilayahIndex({ batasWilayah }: { batasWilayah: Bata
                                     </LayersControl.BaseLayer>
 
                                     {/* Desa Boundary */}
-                                    {DESA_SOMAGEDE_BOUNDARY && (
+                                    {DESA_TEGALSAMBI_BOUNDARY && (
                                         <LayersControl.Overlay checked name="Batas Desa">
                                             <Polygon
-                                                positions={DESA_SOMAGEDE_BOUNDARY}
+                                                positions={DESA_TEGALSAMBI_BOUNDARY}
                                                 pathOptions={{
                                                     color: '#2563eb',
                                                     fillColor: 'transparent',
@@ -183,39 +177,40 @@ export default function BatasWilayahIndex({ batasWilayah }: { batasWilayah: Bata
                                     <LayersControl.Overlay checked name="Batas Lahan">
                                         <LayerGroup>
                                             {filteredBatas.map((batas) => {
-                                                const fillColor = LAND_USE_COLORS[batas.jenis] || batas.warna;
-
+                                                const polygonCenter = L.latLngBounds(batas.coordinates).getCenter();
                                                 return (
-                                                    <Polygon
-                                                        key={batas.id}
-                                                        positions={batas.coordinates}
-                                                        pathOptions={{
-                                                            color: fillColor,
-                                                            fillColor: fillColor,
-                                                            fillOpacity: batas.opacity,
-                                                            weight: selectedBatasId === batas.id ? 4 : 2,
-                                                        }}
-                                                        eventHandlers={{
-                                                            click: () => setSelectedBatasId(batas.id)
-                                                        }}
-                                                    >
-                                                        <Tooltip>{batas.nama}</Tooltip>
-                                                        <Popup>
-                                                            <MarkerPopupContent
-                                                                name={batas.nama}
-                                                                type="batas-wilayah"
-                                                                id={batas.id}
-                                                                imageUrl={batas.foto_batas_wilayah}
-                                                                additionalInfo={[
-                                                                    { label: 'Jenis', value: batas.jenis },
-                                                                    { label: 'Luas', value: formatLuas(batas.luas) },
-                                                                    ...(batas.nama_pemilik ? [{ label: 'Pemilik', value: batas.nama_pemilik }] : []),
-                                                                    ...(batas.no_hp_pemilik ? [{ label: 'No. HP', value: batas.no_hp_pemilik }] : []),
-                                                                    ...(batas.keterangan ? [{ label: 'Keterangan', value: batas.keterangan }] : []),
-                                                                ]}
-                                                            />
-                                                        </Popup>
-                                                    </Polygon>
+                                                    <React.Fragment key={batas.id}>
+                                                        <Polygon
+                                                            positions={batas.coordinates}
+                                                            pathOptions={{
+                                                                color: '#3b82f6',
+                                                                fillColor: '#3b82f6',
+                                                                fillOpacity: batas.opacity,
+                                                                weight: selectedBatasId === batas.id ? 4 : 2,
+                                                            }}
+                                                            eventHandlers={{
+                                                                click: () => setSelectedBatasId(batas.id)
+                                                            }}
+                                                        >
+                                                            <Tooltip>{batas.nama}</Tooltip>
+                                                            <Popup>
+                                                                <MarkerPopupContent
+                                                                    name={batas.nama}
+                                                                    type="batas-wilayah"
+                                                                    id={batas.id}
+                                                                    imageUrl={batas.foto_batas_wilayah}
+                                                                    additionalInfo={[
+                                                                        { label: 'Jenis', value: batas.jenis },
+                                                                        { label: 'Luas', value: formatLuas(batas.luas) },
+                                                                        ...(batas.nama_pemilik ? [{ label: 'Pemilik', value: batas.nama_pemilik }] : []),
+                                                                        ...(batas.no_hp_pemilik ? [{ label: 'No. HP', value: batas.no_hp_pemilik }] : []),
+                                                                        ...(batas.keterangan ? [{ label: 'Keterangan', value: batas.keterangan }] : []),
+                                                                    ]}
+                                                                />
+                                                            </Popup>
+                                                        </Polygon>
+                                                        <Marker position={polygonCenter} icon={createFacilityIcon(batas.jenis)} />
+                                                    </React.Fragment>
                                                 );
                                             })}
                                         </LayerGroup>

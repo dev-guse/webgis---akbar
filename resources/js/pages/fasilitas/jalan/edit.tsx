@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { MapContainer, Polygon, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from '@/components/maps/MapLegend';
 import PolylineDrawer from '@/components/maps/PolylineDrawer';
 import {
@@ -129,13 +129,13 @@ const FasilitasJalanEdit: React.FC<FasilitasEditProps> = ({ auth, fasilitas, des
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('fasilitas.update', fasilitas.id));
+        put(route('fasilitas.update', { id: fasilitas.id }));
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     // Determine center
-    const mapCenter = (polylineCoords && polylineCoords.length > 0) ? polylineCoords[0] : DESA_SOMAGEDE_CENTER;
+    const mapCenter = (polylineCoords && polylineCoords.length > 0) ? polylineCoords[0] : DESA_TEGALSAMBI_CENTER;
 
     const currentColor = data.jenis ? getRoadColor(data.jenis) : '#3b82f6';
     const isRoadTypeSelected = !!data.jenis;
@@ -302,9 +302,9 @@ const FasilitasJalanEdit: React.FC<FasilitasEditProps> = ({ auth, fasilitas, des
                                                     }
                                                 ] : []}
                                             />
-                                            {DESA_SOMAGEDE_BOUNDARY && (
+                                            {DESA_TEGALSAMBI_BOUNDARY && (
                                                 <Polygon
-                                                    positions={DESA_SOMAGEDE_BOUNDARY}
+                                                    positions={DESA_TEGALSAMBI_BOUNDARY}
                                                     pathOptions={{
                                                         color: '#94a3b8',
                                                         fillColor: '#cbd5e1',

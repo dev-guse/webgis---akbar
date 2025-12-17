@@ -54,3 +54,7 @@ declare global {
 interface RouteParams {
     [key: string]: string | number | boolean | (string | number | boolean)[] | undefined;
 }
+
+export interface PageProps extends SharedData {
+    // Tambahkan properti khusus halaman jika ada, atau biarkan kosong jika hanya SharedData
+}

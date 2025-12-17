@@ -28,7 +28,7 @@ export default function AuthSimpleLayout({
                             </div>
                             <div className="text-center">
                                 <div className="text-lg font-bold text-blue-600">WebGIS</div>
-                                <div className="text-xs text-muted-foreground">Desa Somagede</div>
+                                <div className="text-xs text-muted-foreground">Desa Tegalsambi</div>
                             </div>
                             <span className="sr-only">{title}</span>
                         </Link>

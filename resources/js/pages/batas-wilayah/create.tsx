@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Polygon, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,19 +111,12 @@ export default function CreateBatasWilayah() {
         setData('coordinates', []);
     };
 
-    // Auto-set color based on jenis
-    useEffect(() => {
-        if (data.jenis && LAND_USE_COLORS[data.jenis]) {
-            setData('warna', LAND_USE_COLORS[data.jenis]);
-        }
-    }, [data.jenis]);
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         post('/batas-wilayah');
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     return (
         <AppLayout>
@@ -325,7 +318,7 @@ export default function CreateBatasWilayah() {
                         </CardHeader>
                         <div className="flex-1 relative z-0">
                             <MapContainer
-                                center={DESA_SOMAGEDE_CENTER}
+                                center={DESA_TEGALSAMBI_CENTER}
                                 zoom={14}
                                 scrollWheelZoom={true}
                                 style={{ height: '100%', width: '100%' }}
@@ -336,9 +329,9 @@ export default function CreateBatasWilayah() {
                                 <BaseMapLayers />
 
                                 {/* Desa Boundary */}
-                                {DESA_SOMAGEDE_BOUNDARY && (
+                                {DESA_TEGALSAMBI_BOUNDARY && (
                                     <Polygon
-                                        positions={DESA_SOMAGEDE_BOUNDARY}
+                                        positions={DESA_TEGALSAMBI_BOUNDARY}
                                         pathOptions={{
                                             color: '#2563eb',
                                             fillColor: '#3b82f6',

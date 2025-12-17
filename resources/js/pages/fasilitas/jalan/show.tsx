@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { MapContainer, Polyline, Polygon, LayersControl, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from '@/components/maps/MapLegend';
 import { ArrowLeft, Edit } from 'lucide-react';
 import { getRoadColor, calculatePolylineLength, formatLength } from '@/lib/road-utils';
@@ -63,8 +63,8 @@ const FasilitasJalanShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) =
 
     const roadLength = polylineCoords ? calculatePolylineLength(polylineCoords) : 0;
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
-    const mapCenter = (polylineCoords && polylineCoords.length > 0) ? polylineCoords[0] : DESA_SOMAGEDE_CENTER;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
+    const mapCenter = (polylineCoords && polylineCoords.length > 0) ? polylineCoords[0] : DESA_TEGALSAMBI_CENTER;
 
     const formatLabel = (str: string) => {
         return str.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
@@ -166,10 +166,10 @@ const FasilitasJalanShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) =
                                                         url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
                                                     />
                                                 </LayersControl.BaseLayer>
-                                                {DESA_SOMAGEDE_BOUNDARY && (
+                                                {DESA_TEGALSAMBI_BOUNDARY && (
                                                     <LayersControl.Overlay checked name="Batas Desa">
                                                         <Polygon
-                                                            positions={DESA_SOMAGEDE_BOUNDARY}
+                                                            positions={DESA_TEGALSAMBI_BOUNDARY}
                                                             pathOptions={{
                                                                 color: '#2563eb',
                                                                 fillColor: 'transparent',

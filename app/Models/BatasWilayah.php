@@ -55,7 +55,6 @@ class BatasWilayah extends Model
         // Convert from degrees to meters (approximate)
         // 1 degree latitude ≈ 111,320 meters
         // 1 degree longitude ≈ 111,320 * cos(latitude) meters
-        // For Desa Somagede (lat ≈ -7.53), cos(-7.53°) ≈ 0.991
         $metersPerDegreeLat = 111320;
         $metersPerDegreeLng = 111320 * 0.991;
         

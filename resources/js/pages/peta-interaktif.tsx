@@ -5,7 +5,7 @@ import MapView from '@/components/maps/map-view';
 import { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { Search, MapPin, Car, AlertTriangle, Layers } from 'lucide-react';
-import { getEventsByType, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -33,7 +33,7 @@ export default function PetaInteraktif() {
         if (layerParam) {
             return [layerParam];
         } else {
-            return ['lokasi-penduduk', 'fasilitas-umum', 'fasilitas-privat', 'fasilitas-jalan', 'batas-wilayah', 'tragedi-berlangsung', 'riwayat-tragedi'];
+            return ['fasilitas-umum', 'fasilitas-privat', 'fasilitas-jalan', 'batas-wilayah'];
         }
     });
     const [showLayerPanel, setShowLayerPanel] = useState(false);
@@ -47,6 +47,39 @@ export default function PetaInteraktif() {
     const [batasWilayahMarkers, setBatasWilayahMarkers] = useState([]);
 
     useEffect(() => {
+        const fetchDataForLayer = async (layer: string) => {
+            try {
+                switch (layer) {
+                    case 'fasilitas-umum':
+                        const responseFasilitasUmum = await axios.get(route('api.markers.fasilitas', { tipe: 'umum' }));
+                        setFasilitasUmumMarkers(responseFasilitasUmum.data);
+                        break;
+                    case 'fasilitas-privat':
+                        const responseFasilitasPrivat = await axios.get(route('api.markers.fasilitas', { tipe: 'privat' }));
+                        setFasilitasPrivatMarkers(responseFasilitasPrivat.data);
+                        break;
+                    case 'fasilitas-jalan':
+                        const responseFasilitasJalan = await axios.get(route('api.markers.fasilitas', { tipe: 'jalan' }));
+                        setFasilitasJalanMarkers(responseFasilitasJalan.data);
+                        break;
+                    case 'batas-wilayah':
+                        const responseBatasWilayah = await axios.get(route('api.markers.batas-wilayah'));
+                        const transformedData = responseBatasWilayah.data.map((item: any) => ({
+                            ...item,
+                            coordinates: Array.isArray(item.coordinates) ? item.coordinates : []
+                        }));
+                        setBatasWilayahMarkers(transformedData);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (error) {
+                console.error(`Error fetching ${layer}:`, error);
+            }
+        };
+
+        activeLayers.forEach(fetchDataForLayer);
+
         const fetchLokasiPenting = async () => {
             try {
                 const response = await axios.get(route('api.markers.lokasi-penting'));
@@ -56,107 +89,7 @@ export default function PetaInteraktif() {
             }
         };
         fetchLokasiPenting();
-    }, []);
-
-    useEffect(() => {
-        const fetchBatasWilayah = async () => {
-            try {
-                const response = await axios.get(route('api.markers.batas-wilayah'));
-                console.log('Batas Wilayah Data:', response.data);
-                // Transform data to ensure coordinates are in correct format
-                const transformedData = response.data.map((item: any) => ({
-                    ...item,
-                    coordinates: Array.isArray(item.coordinates) ? item.coordinates : []
-                }));
-                setBatasWilayahMarkers(transformedData);
-            } catch (error) {
-                console.error('Error fetching batas wilayah:', error);
-            }
-        };
-        fetchBatasWilayah();
-    }, []);
-
-    useEffect(() => {
-        const fetchRumah = async () => {
-            try {
-                const response = await axios.get(route('api.markers.rumah'));
-                setRumahMarkers(response.data);
-            } catch (error) {
-                console.error('Error fetching rumah:', error);
-            }
-        };
-        fetchRumah();
-    }, []);
-
-    useEffect(() => {
-        const fetchBencanaRiwayat = async () => {
-            try {
-                const response = await axios.get(route('api.markers.bencana', { status: 'riwayat' }));
-                setBencanaRiwayatMarkers(response.data);
-            } catch (error) {
-                console.error('Error fetching bencana riwayat:', error);
-            }
-        };
-        fetchBencanaRiwayat();
-    }, []);
-
-    useEffect(() => {
-        const fetchBencanaBerlangsung = async () => {
-            try {
-                const response = await axios.get(route('api.markers.bencana', { status: 'berlangsung' }));
-                setBencanaBerlangsungMarkers(response.data);
-            } catch (error) {
-                console.error('Error fetching bencana berlangsung:', error);
-            }
-        };
-        fetchBencanaBerlangsung();
-    }, []);
-
-    useEffect(() => {
-        const fetchFasilitasJalan = async () => {
-            try {
-                const response = await axios.get(route('api.markers.fasilitas', { tipe: 'jalan' }));
-                setFasilitasJalanMarkers(response.data);
-            } catch (error) {
-                console.error('Error fetching fasilitas jalan:', error);
-            }
-        };
-        fetchFasilitasJalan();
-    }, []);
-
-    useEffect(() => {
-        const fetchFasilitasPrivat = async () => {
-            try {
-                const response = await axios.get(route('api.markers.fasilitas', { tipe: 'privat' }));
-                setFasilitasPrivatMarkers(response.data);
-            } catch (error) {
-                console.error('Error fetching fasilitas privat:', error);
-            }
-        };
-        fetchFasilitasPrivat();
-    }, []);
-
-    useEffect(() => {
-        const fetchFasilitasUmum = async () => {
-            try {
-                const response = await axios.get(route('api.markers.fasilitas', { tipe: 'umum' }));
-                setFasilitasUmumMarkers(response.data);
-            } catch (error) {
-                console.error('Error fetching fasilitas umum:', error);
-            }
-        };
-        fetchFasilitasUmum();
-    }, []);
-
-
-
-
-
-    // Get events by type from mock data
-    const trafficEvents: MapEvent[] = useMemo(() => getEventsByType('traffic'), []);
-    const accidentEvents: MapEvent[] = useMemo(() => getEventsByType('accident'), []);
-    const hazardEvents: MapEvent[] = useMemo(() => getEventsByType('hazard'), []);
-    // const locationEvents = useMemo(() => getEventsByType('location'), []); // No longer needed, using API data
+    }, [activeLayers]);
 
     // Filter locations based on search (now using API data for lokasiPenting)
     const filteredLokasiPenting = useMemo(() => {
@@ -172,21 +105,18 @@ export default function PetaInteraktif() {
     };
 
     const toggleLayer = (layerId: string) => {
-        setActiveLayers(prev => 
-            prev.includes(layerId) 
+        setActiveLayers(prev =>
+            prev.includes(layerId)
                 ? prev.filter(l => l !== layerId)
                 : [...prev, layerId]
         );
     };
 
     const layerOptions = [
-        { id: 'lokasi-penduduk', label: 'Lokasi Penduduk', icon: '🏠' },
         { id: 'fasilitas-umum', label: 'Fasilitas Umum', icon: '🏥' },
         { id: 'fasilitas-privat', label: 'Fasilitas Privat', icon: '🏢' },
         { id: 'fasilitas-jalan', label: 'Fasilitas Jalan', icon: '🛣️' },
         { id: 'batas-wilayah', label: 'Batas Wilayah', icon: '📍' },
-        { id: 'tragedi-berlangsung', label: 'Tragedi Berlangsung', icon: '⚠️' },
-        { id: 'riwayat-tragedi', label: 'Riwayat Tragedi', icon: '📋' },
     ];
 
     return (
@@ -199,7 +129,7 @@ export default function PetaInteraktif() {
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                         <input
                             type="text"
-                            placeholder="Cari lokasi di Desa Somagede..."
+                            placeholder="Cari lokasi di Desa Tegalsambi..."
                             className="w-full pl-8 pr-4 py-2 text-sm bg-transparent border-none focus:ring-0 outline-none"
                             value={searchQuery}
                             onChange={handleSearch}
@@ -265,129 +195,16 @@ export default function PetaInteraktif() {
                     </div>
                 )}
 
-                {/* Legend Overlay */}
-                <div className="absolute top-8 right-8 z-[400] bg-background/90 backdrop-blur shadow-lg rounded-lg border p-3 max-w-xs max-h-96 overflow-y-auto">
-                    <h4 className="font-semibold text-sm mb-2">Legenda</h4>
-                    <div className="space-y-2 text-xs">
-                        {/* Lokasi Penduduk */}
-                        {activeLayers.includes('lokasi-penduduk') && (
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                                <span>Lokasi Penduduk</span>
-                            </div>
-                        )}
 
-                        {/* Fasilitas Umum */}
-                        {activeLayers.includes('fasilitas-umum') && (
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-purple-500" />
-                                <span>Fasilitas Umum</span>
-                            </div>
-                        )}
-
-                        {/* Fasilitas Privat */}
-                        {activeLayers.includes('fasilitas-privat') && (
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-orange-500" />
-                                <span>Fasilitas Privat</span>
-                            </div>
-                        )}
-
-                        {/* Fasilitas Jalan */}
-                        {activeLayers.includes('fasilitas-jalan') && (
-                            <div className="flex items-center gap-2">
-                                <div className="h-0.5 w-4 bg-gray-800" />
-                                <span>Fasilitas Jalan</span>
-                            </div>
-                        )}
-
-                        {/* Batas Wilayah */}
-                        {activeLayers.includes('batas-wilayah') && (
-                            <>
-                                <div className="border-t pt-2 mt-2">
-                                    <p className="font-semibold text-xs mb-1">Batas Wilayah (Jenis):</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-lime-500" />
-                                    <span>Pertanian</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-amber-500" />
-                                    <span>Pemukiman</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-green-600" />
-                                    <span>Hutan</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-green-500" />
-                                    <span>Perkebunan</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-slate-600" />
-                                    <span>Industri</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-blue-500" />
-                                    <span>Fasilitas Umum</span>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Tragedi Berlangsung */}
-                        {activeLayers.includes('tragedi-berlangsung') && (
-                            <>
-                                <div className="border-t pt-2 mt-2">
-                                    <p className="font-semibold text-xs mb-1">Tragedi Berlangsung:</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                                    <span>Rendah</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                                    <span>Sedang</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-orange-500" />
-                                    <span>Tinggi</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                                    <span>Sangat Tinggi</span>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Riwayat Tragedi */}
-                        {activeLayers.includes('riwayat-tragedi') && (
-                            <>
-                                <div className="border-t pt-2 mt-2">
-                                    <p className="font-semibold text-xs mb-1">Riwayat Tragedi:</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-gray-500" />
-                                    <span>Selesai</span>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
 
                 <div className="rounded-xl border border-sidebar-border/70 p-0 overflow-hidden h-[calc(100vh-8rem)] dark:border-sidebar-border shadow-md">
                     <MapView
-                        trafficEvents={trafficEvents}
-                        accidentEvents={accidentEvents}
-                        hazardEvents={hazardEvents}
                         lokasiPenting={filteredLokasiPenting} // Fetched API data
                         fasilitasUmum={fasilitasUmumMarkers} // Fetched API data
                         fasilitasPrivat={fasilitasPrivatMarkers} // Fetched API data
                         fasilitasJalan={fasilitasJalanMarkers} // Fetched API data
-                        bencanaBerlangsung={bencanaBerlangsungMarkers} // Fetched API data
-                        bencanaRiwayat={bencanaRiwayatMarkers} // Fetched API data
-                        rumah={rumahMarkers}         // Fetched API data
                         batasWilayah={batasWilayahMarkers} // Fetched API data
-                        villageBoundary={DESA_SOMAGEDE_BOUNDARY}
+                        villageBoundary={DESA_TEGALSAMBI_BOUNDARY}
                         activeLayers={activeLayers}
                     />
                 </div>

@@ -115,7 +115,7 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 {/* Footer */}
                 <footer className="border-t py-8 bg-muted/30">
                     <div className="container mx-auto px-4 text-center text-muted-foreground">
-                        <p>&copy; 2025 WebGIS Desa Somagede, Kec. Sempor, Kab. Kebumen. All rights reserved.</p>
+                        <p>&copy; 2025 WebGIS Desa Tegalsambi, Kec. Tahunan, Kab. Jepara, Prov. Jawa Tengah. All rights reserved.</p>
                     </div>
                 </footer>
             </div>

@@ -7,9 +7,11 @@ import { SharedData } from '@/types';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMap, LayersControl, LayerGroup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import { fixLeafletDefaultIcon } from '@/lib/leaflet-utils';
 import MapLegend from '@/components/maps/MapLegend';
+import { Eye } from 'lucide-react';
+import { getRoadColor } from '@/lib/road-utils';
 
 fixLeafletDefaultIcon();
 
@@ -43,14 +45,14 @@ interface FasilitasIndexProps extends SharedData {
 
 const FasilitasJalanIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, tipeAkses }) => {
     const pageTitle = 'Fasilitas Jalan';
-    const [mapCenter, setMapCenter] = useState<[number, number]>(DESA_SOMAGEDE_CENTER);
+    const [mapCenter, setMapCenter] = useState<[number, number]>(DESA_TEGALSAMBI_CENTER);
     const [mapZoom, setMapZoom] = useState(14);
     const [mapKey, setMapKey] = useState(0);
     const pageDescription = 'Daftar dan pengelolaan data jalan desa';
 
     const handleDelete = (id: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus data jalan ini?')) {
-            router.delete(route('fasilitas.destroy', id), {
+            router.delete(route('fasilitas.destroy', { id: id }), {
                 onSuccess: () => {
                     router.visit(route('fasilitas.index', { tipe: tipeAkses }));
                 },
@@ -96,7 +98,7 @@ const FasilitasJalanIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, t
         return null;
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     return (
         <AppLayoutTemplate>
@@ -143,10 +145,10 @@ const FasilitasJalanIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, t
                                             url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
                                         />
                                     </LayersControl.BaseLayer>
-                                    {DESA_SOMAGEDE_BOUNDARY && (
+                                    {DESA_TEGALSAMBI_BOUNDARY && (
                                         <LayersControl.Overlay checked name="Batas Desa">
                                             <Polygon
-                                                positions={DESA_SOMAGEDE_BOUNDARY}
+                                                positions={DESA_TEGALSAMBI_BOUNDARY}
                                                 pathOptions={{
                                                     color: '#2563eb',
                                                     fillColor: 'transparent',
@@ -235,7 +237,7 @@ const FasilitasJalanIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, t
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{item.keterangan || '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <div className="flex gap-2">
-                                                        <Link href={route('fasilitas.show', item.id)}>
+                                                        <Link href={route('fasilitas.show', { id: item.id })}>
                                                             <Button size="sm" variant="outline">
                                                                 <Eye className="h-4 w-4 mr-1" />
                                                                 Detail

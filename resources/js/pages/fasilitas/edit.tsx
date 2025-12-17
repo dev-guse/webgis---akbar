@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { MapContainer, Marker, useMapEvents, Polygon, LayersControl, TileLayer, LayerGroup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from '@/components/maps/MapLegend';
 import { facilityIcons, getFacilityIconSVG } from '@/lib/map-icons';
 import {
@@ -139,7 +139,7 @@ const FasilitasEdit: React.FC<FasilitasEditProps> = ({ auth, fasilitas, desa, ti
                 }
 
                 const clickedLatLng = e.latlng;
-                const bounds = L.latLngBounds(DESA_SOMAGEDE_BOUNDARY);
+                const bounds = L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY);
 
                 if (bounds.contains(clickedLatLng)) {
                     setMarkerPosition(clickedLatLng);
@@ -148,7 +148,7 @@ const FasilitasEdit: React.FC<FasilitasEditProps> = ({ auth, fasilitas, desa, ti
                     // Reverse geocoding
                     try {
                         const response = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${clickedLatLng.lat}&lon=${clickedLatLng.lng}&addressdetails=1`
+                            route('geocoding.reverse', { lat: clickedLatLng.lat, lon: clickedLatLng.lng })
                         );
                         const result = await response.json();
 
@@ -168,12 +168,12 @@ const FasilitasEdit: React.FC<FasilitasEditProps> = ({ auth, fasilitas, desa, ti
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('fasilitas.update', fasilitas.id));
+        put(route('fasilitas.update', { id: fasilitas.id }));
     };
 
-    const initialCenter: L.LatLngExpression = markerPosition || DESA_SOMAGEDE_CENTER;
+    const initialCenter: L.LatLngExpression = markerPosition || DESA_TEGALSAMBI_CENTER;
     const initialZoom = 14;
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     const formattedJenisOptions = jenisOptions.map((jenis) => ({
         value: jenis,
@@ -483,9 +483,9 @@ const FasilitasEdit: React.FC<FasilitasEditProps> = ({ auth, fasilitas, desa, ti
                                                     url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
                                                 />
                                             </LayersControl.BaseLayer>
-                                            {DESA_SOMAGEDE_BOUNDARY && (
+                                            {DESA_TEGALSAMBI_BOUNDARY && (
                                                 <LayersControl.Overlay checked name="Batas Desa">
-                                                    <Polygon positions={DESA_SOMAGEDE_BOUNDARY} pathOptions={{ color: '#2563eb', fillColor: 'transparent', weight: 3, dashArray: '5, 5' }} />
+                                                    <Polygon positions={DESA_TEGALSAMBI_BOUNDARY} pathOptions={{ color: '#2563eb', fillColor: 'transparent', weight: 3, dashArray: '5, 5' }} />
                                                 </LayersControl.Overlay>
                                             )}
                                             <LayersControl.Overlay checked name="Lokasi Fasilitas">

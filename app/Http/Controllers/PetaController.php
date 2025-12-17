@@ -13,14 +13,15 @@ class PetaController extends Controller
 {
     public function index(): Response
     {
-        // For now, we'll pass empty arrays for old data and add mock events
-        // In the future, these will come from the database
+        $lokasiPenting = LokasiPenting::all();
+        $infrastruktur = Infrastruktur::all();
+        $penggunaanLahan = PenggunaanLahan::all();
         
         return Inertia::render('peta-interaktif', [
             'desa' => null, // Will be populated when we have village boundaries
-            'lokasiPenting' => [],
-            'infrastruktur' => [],
-            'penggunaanLahan' => [],
+            'lokasiPenting' => $lokasiPenting,
+            'infrastruktur' => $infrastruktur,
+            'penggunaanLahan' => $penggunaanLahan,
             // Mock data will be loaded directly in the frontend for now
         ]);
     }

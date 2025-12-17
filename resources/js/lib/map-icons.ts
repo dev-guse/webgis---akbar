@@ -33,7 +33,7 @@ const SVG_PATHS: { [key: string]: string } = {
     // Fire department - Fire truck
     fire: `<path d="M20 12V15.5C20 16.6 19.1 17.5 18 17.5C16.9 17.5 16 16.6 16 15.5V13H13L12 14.5V16H7.5C7.5 17.4 6.4 18.5 5 18.5C3.6 18.5 2.5 17.4 2.5 16H1V8H13V10H16L20 12M3 14H5V16H3V14M18 14A1.5 1.5 0 0 1 19.5 15.5A1.5 1.5 0 0 1 18 17A1.5 1.5 0 0 1 16.5 15.5A1.5 1.5 0 0 1 18 14M8 4L6 8H11L13 4H8Z" fill="currentColor"/>`,
 
-    // Park - Tree
+    // Park/Forest - Tree
     park: `<path d="M11 21V16.74C10.53 16.91 10.03 17 9.5 17C7 17 5 15 5 12.5C5 11.23 5.5 10.09 6.36 9.27C6.13 8.73 6 8.13 6 7.5C6 5 8 3 10.5 3C11.35 3 12.13 3.26 12.78 3.68C13.34 2.68 14.39 2 15.59 2C17.5 2 19.09 3.59 19.09 5.5C19.09 6.06 18.97 6.59 18.76 7.08C19.53 7.92 20 9.11 20 10.41C20 12.74 18.24 14.5 15.91 14.5C15.73 14.5 15.55 14.5 15.38 14.46L13 21H11Z" fill="currentColor"/>`,
 
     // Stadium - Sports field
@@ -48,8 +48,17 @@ const SVG_PATHS: { [key: string]: string } = {
     // Post office - Mail/envelope
     mail: `<path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4M20 8L12 13L4 8V6L12 11L20 6V8Z" fill="currentColor"/>`,
 
-    // House - Home
+    // House/Pemukiman - Home
     house: `<path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" fill="currentColor"/>`,
+
+    // Pertanian - Sprout/leaf
+    pertanian: `<path d="M21,21H3V19H21V21M19.5,18H4.5C4.22,18 4,17.78 4,17.5V10.33C4,10.05 4.22,9.83 4.5,9.83H19.5 C19.78,9.83 20,10.05 20,10.33V17.5C20,17.78 19.78,18 19.5,18M12,9C11,9 11,8 11,8C11,8 11,7 12,7C13,7 13,8 13,8C13,8 13,9 12,9M12,6C9.13,6 7.3,8.08 8,11H16C16.7,8.08 14.88,6 12,6M6.5,5H17.5L16,2H8L6.5,5Z" fill="currentColor" />`,
+
+    // Perkebunan - Group of trees
+    perkebunan: `<path d="M7 14H5v5h2v-5zm10-4h-2v9h2V10zm-4 2h-2v7h2v-7zm-4-4H7v9h2V8zm10-4h-2v13h2V4z" fill="currentColor" />`,
+
+    // Industri - Factory
+    industri: `<path d="M2 22H22V20H2V22M12 2L2 7H4V18H20V7H22L12 2M16 16H8V11H16V16M16 9H8V4H16V9Z" fill="currentColor" />`,
 
     // Default - Map pin
     default: `<path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22S19 14.25 19 9C19 5.13 15.87 2 12 2M12 11.5C10.62 11.5 9.5 10.38 9.5 9S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5Z" fill="currentColor"/>`,
@@ -92,6 +101,37 @@ export const getFacilityIconSVG = (type: string, fillColor: string = '#3b82f6', 
         case 'kebakaran': iconKey = 'fire_disaster'; break; // Use new distinct icon
         case 'angin_puting_beliung': iconKey = 'tornado'; break;
         case 'kekeringan': iconKey = 'drought'; break;
+        
+        // Handle Batas Wilayah (Land Use) Types
+        case 'Pertanian':
+            iconKey = 'pertanian';
+            iconColor = '#4ade80'; // green-400
+            break;
+        case 'Pemukiman':
+            iconKey = 'house';
+            iconColor = '#fb923c'; // orange-400
+            break;
+        case 'Perkebunan':
+            iconKey = 'perkebunan';
+            iconColor = '#a3e635'; // lime-400
+            break;
+        case 'Hutan':
+            iconKey = 'park';
+            iconColor = '#22c55e'; // green-500
+            break;
+        case 'Industri':
+            iconKey = 'industri';
+            iconColor = '#94a3b8'; // slate-400
+            break;
+        case 'Fasilitas Umum':
+            iconKey = 'building';
+            iconColor = '#60a5fa'; // blue-400
+            break;
+        case 'Lainnya':
+            iconKey = 'default';
+            iconColor = '#a1a1aa'; // zinc-400
+            break;
+
         // Legacy/Facilities logic follows...
         case 'sekolah_sd':
         case 'sekolah_smp':
@@ -172,8 +212,11 @@ export const getFacilityIconSVG = (type: string, fillColor: string = '#3b82f6', 
             iconColor = '#3b82f6'; // Blue
             break;
         default:
-            iconKey = 'building';
-            iconColor = '#6b7280';
+            // If type is not recognized, default to building icon
+            if (!SVG_PATHS[iconKey]) {
+                iconKey = 'building';
+                iconColor = '#6b7280';
+            }
             break;
     }
 

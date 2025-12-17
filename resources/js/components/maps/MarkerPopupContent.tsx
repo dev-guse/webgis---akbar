@@ -24,13 +24,13 @@ export default function MarkerPopupContent({
   const getDetailRoute = () => {
     switch (type) {
       case 'fasilitas':
-        return route('fasilitas.show', id);
+        return route('fasilitas.show', { id: id });
       case 'bencana':
-        return route('bencana.show', id);
+        return route('bencana.show', { id: id });
       case 'rumah':
-        return route('data-kependudukan.lokasi-penduduk.show', id);
+        return route('data-kependudukan.lokasi-penduduk.show', { id: id });
       case 'batas-wilayah':
-        return route('batas-wilayah.show', id);
+        return route('batas-wilayah.show', { id: id });
       case 'lokasi-penting':
         return `/manajemen-data/lokasi-penting/${id}`;
       default:

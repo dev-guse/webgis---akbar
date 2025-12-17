@@ -3,7 +3,7 @@ import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { isPointInPolygon } from '@/lib/geometry';
-import { DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import { toast } from 'sonner';
 
 interface PolygonDrawerProps {
@@ -35,14 +35,14 @@ export default function PolygonDrawer({ onPolygonComplete, color, opacity }: Pol
                 const newPoint = e.latlng;
 
                 // Validate point is within boundary
-                if (DESA_SOMAGEDE_BOUNDARY) {
+                if (DESA_TEGALSAMBI_BOUNDARY) {
                     const isInside = isPointInPolygon(
                         [newPoint.lat, newPoint.lng],
-                        DESA_SOMAGEDE_BOUNDARY
+                        DESA_TEGALSAMBI_BOUNDARY
                     );
 
                     if (!isInside) {
-                        toast.error("Titik harus berada di dalam batas Desa Somagede!");
+                        toast.error("Titik harus berada di dalam batas Desa Tegalsambi!");
                         return;
                     }
                 }

@@ -6,7 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon, useMap, LayersControl,
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import { facilityIcons, getFacilityIconSVG } from '@/lib/map-icons';
 import { Eye } from 'lucide-react';
 import MapLegend from '@/components/maps/MapLegend';
@@ -44,14 +44,14 @@ interface FasilitasIndexProps extends SharedData {
 
 const FasilitasIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, tipeAkses }) => {
     const pageTitle = tipeAkses === 'umum' ? 'Fasilitas Umum' : 'Fasilitas Privat';
-    const [mapCenter, setMapCenter] = useState<[number, number]>(DESA_SOMAGEDE_CENTER);
+    const [mapCenter, setMapCenter] = useState<[number, number]>(DESA_TEGALSAMBI_CENTER);
     const [mapZoom, setMapZoom] = useState(14);
     const [mapKey, setMapKey] = useState(0);
     const pageDescription = tipeAkses === 'umum' ? 'Daftar dan pengelolaan fasilitas umum' : 'Daftar dan pengelolaan fasilitas privat';
 
     const handleDelete = (id: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')) {
-            router.delete(route('fasilitas.destroy', id), {
+            router.delete(route('fasilitas.destroy', { id: id }), {
                 onSuccess: () => {
                     // This will cause a full page reload and re-fetch of data
                     router.visit(route('fasilitas.index', { tipe: tipeAkses }));
@@ -80,7 +80,7 @@ const FasilitasIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, tipeAk
         return null;
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     return (
         <AppLayoutTemplate>
@@ -130,10 +130,10 @@ const FasilitasIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, tipeAk
                                         />
                                     </LayersControl.BaseLayer>
 
-                                    {DESA_SOMAGEDE_BOUNDARY && (
+                                    {DESA_TEGALSAMBI_BOUNDARY && (
                                         <LayersControl.Overlay checked name="Batas Desa">
                                             <Polygon
-                                                positions={DESA_SOMAGEDE_BOUNDARY}
+                                                positions={DESA_TEGALSAMBI_BOUNDARY}
                                                 pathOptions={{
                                                     color: '#2563eb',
                                                     fillColor: '#3b82f6',
@@ -222,7 +222,7 @@ const FasilitasIndex: React.FC<FasilitasIndexProps> = ({ auth, fasilitas, tipeAk
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{item.kondisi}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <div className="flex gap-2">
-                                                        <Link href={route('fasilitas.show', item.id)}>
+                                                        <Link href={route('fasilitas.show', { id: item.id })}>
                                                             <Button size="sm" variant="outline">
                                                                 <Eye className="h-4 w-4 mr-1" />
                                                                 Detail

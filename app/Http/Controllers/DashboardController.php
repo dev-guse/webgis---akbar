@@ -3,11 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Desa;
-use App\Models\LokasiPenting;
 use App\Models\Infrastruktur;
-use App\Models\Bencana;
-use App\Models\Penduduk;
-use App\Models\KartuKeluarga;
 use App\Models\Fasilitas;
 use App\Models\BatasWilayah;
 use App\Models\User;
@@ -26,10 +22,6 @@ class DashboardController extends Controller
             'users' => [
                 'total' => User::count()
             ],
-            'kependudukan' => [
-                'total_kk' => KartuKeluarga::count(),
-                'total_penduduk' => Penduduk::count(),
-            ],
             'fasilitas' => [
                 'total' => Fasilitas::count(),
                 'umum' => Fasilitas::where('jenis', 'umum')->count(),
@@ -38,21 +30,7 @@ class DashboardController extends Controller
             'batas_wilayah' => [
                 'total' => BatasWilayah::count()
             ],
-            'bencana' => [
-                'total' => Bencana::count(),
-                'berlangsung' => Bencana::berlangsung()->count(),
-                'selesai' => Bencana::selesai()->count(),
-            ],
-            'lokasi_penting' => [
-                'total' => LokasiPenting::count()
-            ],
         ];
-
-        // Group lokasi penting by kategori
-        $lokasiByKategori = LokasiPenting::selectRaw('kategori, count(*) as total')
-            ->groupBy('kategori')
-            ->get()
-            ->mapWithKeys(fn($item) => [$item->kategori => $item->total]);
 
         // Group infrastruktur by kondisi
         $infrastrukturByKondisi = Infrastruktur::selectRaw('kondisi, count(*) as total')
@@ -66,11 +44,6 @@ class DashboardController extends Controller
             ->get()
             ->mapWithKeys(fn($item) => [$item->jenis => $item->total_luas]);
 
-        $recentBencana = Bencana::latest()->take(5)->get()->map(function ($bencana) {
-            $bencana->tanggal = $bencana->tanggal_mulai; // Map tanggal_mulai to tanggal for frontend
-            return $bencana;
-        });
-
         $fasilitasByType = Fasilitas::selectRaw('jenis, count(*) as total')
             ->groupBy('jenis')
             ->get()
@@ -78,11 +51,9 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'stats' => $stats,
-            'lokasiByKategori' => $lokasiByKategori,
             'infrastrukturByKondisi' => $infrastrukturByKondisi,
             'penggunaanLahanByJenis' => $penggunaanLahanByJenis,
             'desa' => $desa,
-            'recentBencana' => $recentBencana,
             'fasilitasByType' => $fasilitasByType,
         ]);
     }

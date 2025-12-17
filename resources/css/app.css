@@ -141,3 +141,9 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Fix for custom icons (remove default leaflet square) */
+.custom-facility-icon {
+    background: transparent;
+    border: none;
+}

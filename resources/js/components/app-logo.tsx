@@ -11,7 +11,7 @@ export default function AppLogo() {
                     WebGIS
                 </span>
                 <span className="truncate text-xs leading-tight text-muted-foreground">
-                    Desa Somagede
+                    Desa Tegalsambi
                 </span>
             </div>
         </>

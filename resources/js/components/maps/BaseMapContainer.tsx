@@ -2,7 +2,7 @@ import React from 'react';
 import { MapContainer, TileLayer, Polygon, LayersControl, LayerGroup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from './MapLegend';
 
 interface BaseMapContainerProps {
@@ -24,7 +24,7 @@ interface BaseMapContainerProps {
 }
 
 export default function BaseMapContainer({
-    center = DESA_SOMAGEDE_CENTER,
+    center = DESA_TEGALSAMBI_CENTER,
     zoom = 14,
     height = 'h-[500px]',
     children,
@@ -35,7 +35,7 @@ export default function BaseMapContainer({
     legendTitle = 'Legenda',
     legendItems = [],
 }: BaseMapContainerProps) {
-    const bounds = maxBounds || (DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined);
+    const bounds = maxBounds || (DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined);
 
     return (
         <MapContainer
@@ -72,10 +72,10 @@ export default function BaseMapContainer({
                 </LayersControl.BaseLayer>
 
                 {/* Desa Boundary */}
-                {showDesaBoundary && DESA_SOMAGEDE_BOUNDARY && (
+                {showDesaBoundary && DESA_TEGALSAMBI_BOUNDARY && (
                     <LayersControl.Overlay checked name="Batas Desa">
                         <Polygon
-                            positions={DESA_SOMAGEDE_BOUNDARY}
+                            positions={DESA_TEGALSAMBI_BOUNDARY}
                             pathOptions={{
                                 color: '#2563eb',
                                 fillColor: 'transparent',

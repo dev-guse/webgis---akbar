@@ -37,27 +37,6 @@ const mainNavItems: NavItem[] = [
         ],
     },
     {
-        title: 'Data Kependudukan',
-        icon: Users,
-        items: [
-            {
-                title: 'Lokasi Penduduk',
-                href: '/data-kependudukan/lokasi-penduduk',
-                icon: MapPin,
-            },
-            {
-                title: 'Data Kartu Keluarga',
-                href: '/data-kependudukan/kartu-keluarga',
-                icon: UserSquare,
-            },
-            {
-                title: 'Persebaran Penduduk',
-                href: '/data-kependudukan/persebaran-penduduk',
-                icon: AreaChart,
-            }
-        ],
-    },
-    {
         title: 'Fasilitas',
         icon: Building,
         items: [
@@ -87,22 +66,6 @@ const mainNavItems: NavItem[] = [
                 title: 'Batas Wilayah',
                 href: '/batas-wilayah',
                 icon: Mountain,
-            },
-        ],
-    },
-    {
-        title: 'Bencana Alam',
-        icon: AlertTriangle,
-        items: [
-            {
-                title: 'Tragedi Berlangsung',
-                href: '/bencana/berlangsung',
-                icon: AlertCircle,
-            },
-            {
-                title: 'Riwayat Tragedi',
-                href: '/bencana/riwayat',
-                icon: History,
             },
         ],
     },

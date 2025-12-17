@@ -12,6 +12,8 @@ interface LocationItem {
     nama: string;
     kategori: string;
     koordinat: string;
+    latitude: number;
+    longitude: number;
     // Tambahkan properti lain jika ada
 }
 

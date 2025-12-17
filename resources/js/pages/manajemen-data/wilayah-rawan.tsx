@@ -64,25 +64,25 @@ export default function WilayahRawan() {
                         <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-950/20">
                             <div className="text-sm text-muted-foreground">Banjir</div>
                             <div className="text-2xl font-bold text-blue-600">
-                                {getEventsByHazardType('banjir').length}
+                                {getEventsByType('hazard').filter(e => e.hazard_type === 'banjir').length}
                             </div>
                         </div>
                         <div className="p-4 rounded-lg border bg-orange-50 dark:bg-orange-950/20">
                             <div className="text-sm text-muted-foreground">Longsor</div>
                             <div className="text-2xl font-bold text-orange-600">
-                                {getEventsByHazardType('longsor').length}
+                                {getEventsByType('hazard').filter(e => e.hazard_type === 'longsor').length}
                             </div>
                         </div>
                         <div className="p-4 rounded-lg border bg-red-50 dark:bg-red-950/20">
                             <div className="text-sm text-muted-foreground">Kriminal</div>
                             <div className="text-2xl font-bold text-red-600">
-                                {getEventsByHazardType('kriminal').length}
+                                {getEventsByType('hazard').filter(e => e.hazard_type === 'kriminal').length}
                             </div>
                         </div>
                         <div className="p-4 rounded-lg border bg-yellow-50 dark:bg-yellow-950/20">
                             <div className="text-sm text-muted-foreground">Kebakaran</div>
                             <div className="text-2xl font-bold text-yellow-600">
-                                {getEventsByHazardType('kebakaran').length}
+                                {getEventsByType('hazard').filter(e => e.hazard_type === 'kebakaran').length}
                             </div>
                         </div>
                     </div>

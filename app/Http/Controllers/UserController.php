@@ -53,12 +53,15 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
      */
     public function update(Request $request, User $user)
     {
         // 1. Protection: First user cannot be edited by others
-        if ($user->id === 1 && auth()->id() !== 1) {
-            abort(403, 'Anda tidak diizinkan mengedit user utama.');
+        if ($user->id === 1) {
+            abort(403, 'User utama tidak dapat diedit.');
         }
 
         $validated = $request->validate([
@@ -81,6 +84,8 @@ class UserController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\User  $user
      */
     public function destroy(User $user)
     {

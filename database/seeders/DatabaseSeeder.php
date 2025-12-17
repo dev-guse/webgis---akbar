@@ -26,15 +26,7 @@ class DatabaseSeeder extends Seeder
         // Seed GIS data
         $this->call([
             DesaSeeder::class,
-            LokasiPentingSeeder::class,
-            InfrastrukturSeeder::class,
-            PenggunaanLahanSeeder::class,
-            KartuKeluargaSeeder::class,
-            FasilitasSeeder::class,
-            BatasWilayahSeeder::class,
-            BencanaSeeder::class,
-            PersebaranPendudukSeeder::class,
-            PendudukSeeder::class,
+            
         ]);
     }
 }

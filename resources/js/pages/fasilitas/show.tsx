@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { MapContainer, Marker, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from '@/components/maps/MapLegend';
 import { facilityIcons } from '@/lib/map-icons';
 import { ArrowLeft, Edit } from 'lucide-react';
@@ -56,7 +56,7 @@ const FasilitasShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) => {
         ? new L.LatLng(fasilitas.koordinat[1], fasilitas.koordinat[0])
         : null;
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     const formatLabel = (str: string) => {
         return str.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
@@ -74,7 +74,7 @@ const FasilitasShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) => {
                                 <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                             </Button>
                         </Link>
-                        <Link href={route('fasilitas.edit', fasilitas.id)}>
+                        <Link href={route('fasilitas.edit', { id: fasilitas.id })}>
                             <Button>
                                 <Edit className="mr-2 h-4 w-4" /> Edit Fasilitas
                             </Button>
@@ -97,8 +97,8 @@ const FasilitasShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) => {
                                             <dt className="text-sm font-medium text-gray-500">Kondisi</dt>
                                             <dd className="mt-1 text-sm text-gray-900">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${fasilitas.kondisi === 'baik' ? 'bg-green-100 text-green-800' :
-                                                        fasilitas.kondisi === 'rusak_ringan' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-red-100 text-red-800'
+                                                    fasilitas.kondisi === 'rusak_ringan' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'
                                                     }`}>
                                                     {formatLabel(fasilitas.kondisi)}
                                                 </span>
@@ -169,7 +169,7 @@ const FasilitasShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) => {
                                     <h4 className="text-lg font-semibold mb-4 border-b pb-2">Peta Lokasi</h4>
                                     <div className="flex-1 rounded-lg overflow-hidden min-h-[400px] relative z-0">
                                         <MapContainer
-                                            center={markerPosition || DESA_SOMAGEDE_CENTER}
+                                            center={markerPosition || DESA_TEGALSAMBI_CENTER}
                                             zoom={15}
                                             scrollWheelZoom={false}
                                             style={{ height: '100%', width: '100%' }}
@@ -181,9 +181,9 @@ const FasilitasShow: React.FC<FasilitasShowProps> = ({ auth, fasilitas }) => {
                                         >
                                             <BaseMapLayers />
                                             <MapLegend />
-                                            {DESA_SOMAGEDE_BOUNDARY && (
+                                            {DESA_TEGALSAMBI_BOUNDARY && (
                                                 <Polygon
-                                                    positions={DESA_SOMAGEDE_BOUNDARY}
+                                                    positions={DESA_TEGALSAMBI_BOUNDARY}
                                                     pathOptions={{
                                                         color: '#2563eb',
                                                         fillColor: '#3b82f6',

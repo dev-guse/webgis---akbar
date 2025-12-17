@@ -10,6 +10,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface LaporanProps {
     stats: {
         lokasi: number;
+        infrastruktur: number;
+        lahan: number;
     };
 }
 

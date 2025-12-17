@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { MapContainer, Polygon, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from '@/components/maps/MapLegend';
 import PolylineDrawer from '@/components/maps/PolylineDrawer';
 import {
@@ -92,7 +92,7 @@ const FasilitasJalanCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipe
         post(route('fasilitas.store'));
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     const currentColor = data.jenis ? getRoadColor(data.jenis) : '#3b82f6';
     const isRoadTypeSelected = !!data.jenis;
@@ -122,7 +122,7 @@ const FasilitasJalanCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipe
                                         name="nama"
                                         value={data.nama}
                                         className="mt-1 block w-full"
-                                        placeholder="Contoh: Jalan Raya Somagede"
+                                        placeholder="Contoh: Jalan Raya Tegalsambi"
                                         autoComplete="nama"
                                         onChange={(e) => setData('nama', e.target.value)}
                                     />
@@ -243,7 +243,7 @@ const FasilitasJalanCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipe
                                         )}
 
                                         <MapContainer
-                                            center={DESA_SOMAGEDE_CENTER}
+                                            center={DESA_TEGALSAMBI_CENTER}
                                             zoom={14}
                                             scrollWheelZoom={true}
                                             style={{ height: '100%', width: '100%' }}
@@ -262,9 +262,9 @@ const FasilitasJalanCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipe
                                                     }
                                                 ] : []}
                                             />
-                                            {DESA_SOMAGEDE_BOUNDARY && (
+                                            {DESA_TEGALSAMBI_BOUNDARY && (
                                                 <Polygon
-                                                    positions={DESA_SOMAGEDE_BOUNDARY}
+                                                    positions={DESA_TEGALSAMBI_BOUNDARY}
                                                     pathOptions={{
                                                         color: '#94a3b8',
                                                         fillColor: '#cbd5e1',

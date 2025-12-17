@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Head, useForm, router, usePage } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { PageProps, User } from '@/types';
 import {
     Table,
     TableBody,
@@ -9,73 +9,66 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Pencil, Trash2, Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-}
-
-interface Props {
+interface UserProps extends PageProps {
     users: {
         data: User[];
-        links: any[]; // You might want to type this properly if using pagination links
-        meta: any;
+        links: [];
+        total: number;
     };
     filters: {
-        search: string;
-    };
-    auth: {
-        user: User;
+        search?: string;
     };
 }
 
-export default function Daftar({ users, filters, auth }: Props) {
+export default function Daftar({ users, filters, auth }: UserProps) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-    // Create/Edit Modal State
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
-
-    // Delete Alert State
-    const [userToDelete, setUserToDelete] = useState<User | null>(null);
-
-    // Form Hook
-    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+    } = useForm({
+        id: '',
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
 
-    // Handle Search Debounce
     useEffect(() => {
         if (isInternalUpdate) {
             const timer = setTimeout(() => {
@@ -94,266 +87,310 @@ export default function Daftar({ users, filters, auth }: Props) {
         setIsInternalUpdate(true);
     };
 
-    const openCreateModal = () => {
-        setEditingUser(null);
+    const openAddModal = () => {
         reset();
-        clearErrors();
-        setIsModalOpen(true);
+        setIsAddModalOpen(true);
+    };
+
+    const closeAddModal = () => {
+        setIsAddModalOpen(false);
+        reset();
     };
 
     const openEditModal = (user: User) => {
-        setEditingUser(user);
+        setSelectedUser(user);
         setData({
+            id: String(user.id),
             name: user.name,
             email: user.email,
             password: '',
             password_confirmation: '',
         });
-        clearErrors();
-        setIsModalOpen(true);
+        setIsEditModalOpen(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditingUser(null);
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+        setSelectedUser(null);
         reset();
-        clearErrors();
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const openDeleteModal = (user: User) => {
+        setSelectedUser(user);
+        setIsDeleteModalOpen(true);
+    };
 
-        if (editingUser) {
-            put(route('pengguna.update', editingUser.id), {
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const submitAdd = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('users.store'), {
+            onSuccess: () => {
+                closeAddModal();
+                toast.success('User berhasil ditambahkan.');
+            },
+            onError: (err) => {
+                console.error(err);
+                toast.error('Gagal menambahkan user.');
+            },
+        });
+    };
+
+    const submitEdit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (selectedUser) {
+            put(route('users.update', { id: selectedUser.id }), {
                 onSuccess: () => {
-                    closeModal();
-                    toast.success('User berhasil diperbarui');
+                    closeEditModal();
+                    toast.success('User berhasil diperbarui.');
                 },
-                onError: () => toast.error('Gagal memperbarui user, periksa inputan anda.'),
-            });
-        } else {
-            post(route('pengguna.store'), {
-                onSuccess: () => {
-                    closeModal();
-                    toast.success('User berhasil ditambahkan');
+                onError: (err) => {
+                    console.error(err);
+                    toast.error('Gagal memperbarui user.');
                 },
-                onError: () => toast.error('Gagal menambahkan user, periksa inputan anda.'),
             });
         }
     };
 
-    const confirmDelete = (user: User) => {
-        setUserToDelete(user);
-    };
-
-    const handleDelete = () => {
-        if (!userToDelete) return;
-
-        router.delete(route('pengguna.destroy', userToDelete.id), {
-            onSuccess: () => {
-                setUserToDelete(null);
-                toast.success('User berhasil dihapus');
-            },
-            onError: (err) => {
-                // Handle specific error messages if passed from backend session flash
-                // Since this uses standard inertia delete, we might need verify how errors come back.
-                // Assuming global error handling or page flash props are handled by layout.
-                // If specific 403, Inertia handles it.
-                toast.error('Gagal menghapus user.');
-                setUserToDelete(null);
-            }
-        });
+    const submitDelete = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (selectedUser) {
+            destroy(route('users.destroy', { id: selectedUser.id }), {
+                onSuccess: () => {
+                    closeDeleteModal();
+                    toast.success('User berhasil dihapus.');
+                },
+                onError: (err) => {
+                    console.error(err);
+                    toast.error('Gagal menghapus user.');
+                },
+            });
+        }
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Manajemen User', href: '/pengguna/daftar' }]}>
+        <AppLayout>
             <Head title="Manajemen User" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Daftar Pengguna</h1>
-                        <p className="text-muted-foreground">
-                            Kelola pengguna yang memiliki akses ke sistem.
-                        </p>
-                    </div>
-                    <Button onClick={openCreateModal}>
-                        <Plus className="mr-2 h-4 w-4" /> Tambah User
-                    </Button>
-                </div>
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-6 text-gray-900 dark:text-gray-100">
+                            <div className="flex justify-between items-center mb-4">
+                                <Input
+                                    type="text"
+                                    placeholder="Cari user..."
+                                    value={searchQuery}
+                                    onChange={handleSearch}
+                                    className="max-w-sm"
+                                />
+                                <Button onClick={openAddModal}>
+                                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah User
+                                </Button>
+                            </div>
 
-                <div className="flex items-center py-2">
-                    <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Cari nama atau email..."
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            className="pl-8"
-                        />
-                    </div>
-                </div>
-
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>No</TableHead>
-                                <TableHead>Nama</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Terdaftar Sejak</TableHead>
-                                <TableHead className="text-right">Aksi</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.data.length > 0 ? (
-                                users.data.map((user, index) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell className="font-medium">{user.name}</TableCell>
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell>
-                                            {new Date(user.created_at).toLocaleDateString('id-ID', {
-                                                day: 'numeric',
-                                                month: 'long',
-                                                year: 'numeric',
-                                            })}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => openEditModal(user)}
-                                                    disabled={user.id === 1 && auth.user.id !== 1}
-                                                    title={user.id === 1 ? "User Utama tidak dapat diedit" : "Edit User"}
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                    onClick={() => confirmDelete(user)}
-                                                    disabled={user.id === 1 || user.id === auth.user.id}
-                                                    title={
-                                                        user.id === 1
-                                                            ? "User Utama tidak dapat dihapus"
-                                                            : user.id === auth.user.id
-                                                                ? "Tidak dapat menghapus akun sendiri"
-                                                                : "Hapus User"
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Nama</TableHead>
+                                        <TableHead>Email</TableHead>
+                                        <TableHead>Aksi</TableHead>
                                     </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center">
-                                        Tidak ada data user.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {users.data.length > 0 ? (
+                                        users.data.map((user) => (
+                                            <TableRow key={user.id}>
+                                                <TableCell>{user.name}</TableCell>
+                                                <TableCell>{user.email}</TableCell>
+                                                <TableCell>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                <span className="sr-only">Buka menu</span>
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                                            <DropdownMenuItem onClick={() => openEditModal(user)} disabled={user.id === 1}>Edit</DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem onClick={() => openDeleteModal(user)} disabled={user.id === 1}>Hapus</DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="text-center">
+                                                Tidak ada user ditemukan.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Create/Edit Modal */}
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            {/* Add User Modal */}
+            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{editingUser ? 'Edit User' : 'Tambah User'}</DialogTitle>
+                        <DialogTitle>Tambah User Baru</DialogTitle>
                         <DialogDescription>
-                            {editingUser
-                                ? 'Perbarui informasi pengguna di bawah ini.'
-                                : 'Isi form di bawah ini untuk menambahkan pengguna baru.'}
+                            Isi detail user baru di sini.
                         </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Nama Lengkap</Label>
+                    <form onSubmit={submitAdd} className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">
+                                Nama
+                            </Label>
                             <Input
                                 id="name"
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
-                                placeholder="Jhon Doe"
-                                required
+                                className="col-span-3"
                             />
-                            {errors.name && <span className="text-sm text-red-500">{errors.name}</span>}
+                            {errors.name && <p className="col-span-4 text-red-500 text-xs">{errors.name}</p>}
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="email" className="text-right">
+                                Email
+                            </Label>
                             <Input
                                 id="email"
                                 type="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
-                                placeholder="name@example.com"
-                                required
+                                className="col-span-3"
                             />
-                            {errors.email && <span className="text-sm text-red-500">{errors.email}</span>}
+                            {errors.email && <p className="col-span-4 text-red-500 text-xs">{errors.email}</p>}
                         </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">
-                                {editingUser ? 'Password Baru (Opsional)' : 'Password'}
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="password" className="text-right">
+                                Password
                             </Label>
                             <Input
                                 id="password"
                                 type="password"
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
-                                placeholder={editingUser ? 'Biarkan kosong jika tidak diubah' : '********'}
-                                required={!editingUser}
+                                className="col-span-3"
                             />
-                            {errors.password && <span className="text-sm text-red-500">{errors.password}</span>}
+                            {errors.password && <p className="col-span-4 text-red-500 text-xs">{errors.password}</p>}
                         </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">Konfirmasi Password</Label>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="password_confirmation" className="text-right">
+                                Konfirmasi Password
+                            </Label>
                             <Input
                                 id="password_confirmation"
                                 type="password"
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
-                                placeholder="********"
-                                required={!editingUser || data.password.length > 0}
+                                className="col-span-3"
                             />
+                            {errors.password_confirmation && <p className="col-span-4 text-red-500 text-xs">{errors.password_confirmation}</p>}
                         </div>
-
                         <DialogFooter>
-                            <Button type="button" variant="outline" onClick={closeModal}>
-                                Batal
-                            </Button>
-                            <Button type="submit" disabled={processing}>
-                                {processing ? 'Menyimpan...' : 'Simpan'}
-                            </Button>
+                            <Button type="button" variant="outline" onClick={closeAddModal}>Batal</Button>
+                            <Button type="submit" disabled={processing}>Simpan</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
             </Dialog>
 
-            {/* Delete Confirmation Alert */}
-            <AlertDialog open={!!userToDelete} onOpenChange={(open: boolean) => !open && setUserToDelete(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Tindakan ini tidak dapat dibatalkan. User <strong>{userToDelete?.name}</strong> akan dihapus secara permanen dari sistem.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
-                            Hapus
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {/* Edit User Modal */}
+            <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit User</DialogTitle>
+                        <DialogDescription>
+                            Ubah detail user di sini.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={submitEdit} className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-name" className="text-right">
+                                Nama
+                            </Label>
+                            <Input
+                                id="edit-name"
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                className="col-span-3"
+                            />
+                            {errors.name && <p className="col-span-4 text-red-500 text-xs">{errors.name}</p>}
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-email" className="text-right">
+                                Email
+                            </Label>
+                            <Input
+                                id="edit-email"
+                                type="email"
+                                value={data.email}
+                                onChange={(e) => setData('email', e.target.value)}
+                                className="col-span-3"
+                            />
+                            {errors.email && <p className="col-span-4 text-red-500 text-xs">{errors.email}</p>}
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-password" className="text-right">
+                                Password (kosongkan jika tidak diubah)
+                            </Label>
+                            <Input
+                                id="edit-password"
+                                type="password"
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                className="col-span-3"
+                            />
+                            {errors.password && <p className="col-span-4 text-red-500 text-xs">{errors.password}</p>}
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-password_confirmation" className="text-right">
+                                Konfirmasi Password
+                            </Label>
+                            <Input
+                                id="edit-password_confirmation"
+                                type="password"
+                                value={data.password_confirmation}
+                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                className="col-span-3"
+                            />
+                            {errors.password_confirmation && <p className="col-span-4 text-red-500 text-xs">{errors.password_confirmation}</p>}
+                        </div>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={closeEditModal}>Batal</Button>
+                            <Button type="submit" disabled={processing}>Simpan Perubahan</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete User Modal */}
+            <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Hapus User</DialogTitle>
+                        <DialogDescription>
+                            Apakah Anda yakin ingin menghapus user "{selectedUser?.name}"? Tindakan ini tidak dapat dibatalkan.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={closeDeleteModal}>Batal</Button>
+                        <Button variant="destructive" onClick={submitDelete} disabled={processing}>Hapus</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

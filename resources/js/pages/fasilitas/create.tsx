@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { MapContainer, Marker, useMapEvents, Polygon, Polyline, TileLayer, LayersControl, LayerGroup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DESA_SOMAGEDE_CENTER, DESA_SOMAGEDE_BOUNDARY } from '@/data/mockMapEvents';
+import { DESA_TEGALSAMBI_CENTER, DESA_TEGALSAMBI_BOUNDARY } from '@/data/mockMapEvents';
 import MapLegend from '@/components/maps/MapLegend';
 import { getFacilityIconSVG, facilityIcons } from '@/lib/map-icons';
 import PolylineDrawer from '@/components/maps/PolylineDrawer';
@@ -125,7 +125,7 @@ const FasilitasCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipeAkses
                 }
 
                 const clickedLatLng = e.latlng;
-                const bounds = L.latLngBounds(DESA_SOMAGEDE_BOUNDARY);
+                const bounds = L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY);
 
                 if (bounds.contains(clickedLatLng)) {
                     setMarkerPosition(clickedLatLng);
@@ -134,7 +134,7 @@ const FasilitasCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipeAkses
                     // Reverse geocoding
                     try {
                         const response = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${clickedLatLng.lat}&lon=${clickedLatLng.lng}&addressdetails=1`
+                            route('geocoding.reverse', { lat: clickedLatLng.lat, lon: clickedLatLng.lng })
                         );
                         const result = await response.json();
 
@@ -157,7 +157,7 @@ const FasilitasCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipeAkses
         post(route('fasilitas.store'));
     };
 
-    const maxBounds = DESA_SOMAGEDE_BOUNDARY ? L.latLngBounds(DESA_SOMAGEDE_BOUNDARY) : undefined;
+    const maxBounds = DESA_TEGALSAMBI_BOUNDARY ? L.latLngBounds(DESA_TEGALSAMBI_BOUNDARY) : undefined;
 
     const formattedJenisOptions = jenisOptions.map((jenis) => ({
         value: jenis,
@@ -442,7 +442,7 @@ const FasilitasCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipeAkses
                                 <div>
                                     <Label htmlFor="koordinat">Koordinat (Klik pada peta)</Label>
                                     <MapContainer
-                                        center={DESA_SOMAGEDE_CENTER}
+                                        center={DESA_TEGALSAMBI_CENTER}
                                         zoom={13}
                                         scrollWheelZoom={true}
                                         className="h-[500px] w-full z-10 rounded-md"
@@ -468,10 +468,10 @@ const FasilitasCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipeAkses
                                                     url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
                                                 />
                                             </LayersControl.BaseLayer>
-                                            {DESA_SOMAGEDE_BOUNDARY && (
+                                            {DESA_TEGALSAMBI_BOUNDARY && (
                                                 <LayersControl.Overlay checked name="Batas Desa">
                                                     <Polygon
-                                                        positions={DESA_SOMAGEDE_BOUNDARY}
+                                                        positions={DESA_TEGALSAMBI_BOUNDARY}
                                                         pathOptions={{
                                                             color: '#2563eb',
                                                             fillColor: 'transparent',
@@ -483,7 +483,7 @@ const FasilitasCreate: React.FC<FasilitasCreateProps> = ({ auth, desa, tipeAkses
                                             )}
                                             {isRoadType ? (
                                                 <LayersControl.Overlay checked name="Jalur Jalan">
-                                                    <PolylineDrawer onPolylineComplete={handlePolylineComplete} existingPolyline={polylineCoords} />
+                                                    <PolylineDrawer onPolylineComplete={handlePolylineComplete} existingPolyline={polylineCoords} color="#FF0000" />
                                                 </LayersControl.Overlay>
                                             ) : (
                                                 markerPosition && (
